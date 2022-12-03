@@ -1,0 +1,35 @@
+fn prio(letter) {
+  o = ord(letter)
+  if o > ord("Z") {
+    o - ord("a") + 1
+  } else {
+    o - ord("A") + 27
+  }
+}
+
+fn parse(line) {
+  line.to_list().map(prio)
+}
+
+fn solve_line(line) {
+  part1 = parse(line[:len(line)/2])
+  part2 = parse(line[len(line)/2:])
+  part1.intersect(part2).head()
+}
+
+fn solve_group(lines) {
+  prios = lines.map(parse)
+  res = prios[0].intersect(prios[1]).intersect(prios[2]).uniq()
+  assert(len(res) == 1, "expected one result")
+  res.head()
+}
+
+lines = readlines("inputs/day3.txt")
+
+res1 = lines.map(solve_line).sum()
+assert(res1 == 7737, "res1")
+println(res1)
+
+res2 = lines.partition(3).map(solve_group).sum()
+assert(res2 == 2697, "res2")
+println(res2)
