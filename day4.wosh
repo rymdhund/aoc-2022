@@ -1,0 +1,30 @@
+fn parse(line) {
+  parts = line.split(",")
+  elf1 = parts[0].split("-").map(atoi)
+  elf2 = parts[1].split("-").map(atoi)
+  [elf1, elf2]
+}
+
+fn contains(parts) {
+  (
+    (parts[0][0] <= parts[1][0] && parts[0][1] >= parts[1][1]) ||
+    (parts[0][0] >= parts[1][0] && parts[0][1] <= parts[1][1])
+  )
+}
+
+fn overlap(parts) {
+  (
+    (parts[0][0] <= parts[1][1] && parts[0][1] >= parts[1][0]) ||
+    (parts[1][0] <= parts[0][1] && parts[1][1] >= parts[0][0])
+  )
+}
+
+
+lines = readlines("inputs/day4.txt")
+res1 = len(lines.map(parse).filter(contains))
+res2 = len(lines.map(parse).filter(overlap))
+println(res1)
+println(res2)
+
+assert(res1 == 305, "Error in res1")
+assert(res2 == 811, "Error in res2")
