@@ -1,0 +1,43 @@
+fn parse_stacks(crate_lines) {
+  col = 1
+  stacks = []
+  for col < len(crate_lines[-1]) {
+    fn get_idx(line) { line[col] }
+    stacks = stacks + [crate_lines.map(get_idx).filter(is_alpha)]
+    col = col + 4
+  }
+  stacks
+}
+
+fn parse_command(line) {
+  parts = line.split(" ")
+  [parts[1], parts[3], parts[5]].map(atoi)
+}
+
+fn move(stacks, cnt, from, to, reverse) {
+  # would be nicer with mutable list :)
+
+  move_crates = if reverse { stacks[from][:cnt].reverse() } else { stacks[from][:cnt] }
+  stack_to = move_crates + stacks[to]
+  stack_from = stacks[from][cnt:]
+
+  stacks = stacks[:from] + [stack_from] + stacks[from+1:]
+  stacks = stacks[:to] + [stack_to] + stacks[to+1:]
+  stacks
+}
+
+fn solve(lines, reverse) {
+  parts = lines.split("")
+  stacks = parse_stacks(parts[0][:-1])
+  commands = parts[1].map(parse_command)
+  i = 0
+  for i < len(commands) {
+    stacks = move(stacks, commands[i][0], commands[i][1]-1, commands[i][2]-1, reverse)
+    i = i + 1
+  }
+  "".join(stacks.map(List.head))
+}
+
+lines = readlines("inputs/day5.txt")
+println(solve(lines, true))
+println(solve(lines, false))
