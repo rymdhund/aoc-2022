@@ -1,0 +1,21 @@
+fn uniq_substring_idx(input, size) {
+  i = size
+  for i < len(input) {
+    chars = sort(input[i-size:i].to_list().map(ord)).uniq()
+    if len(chars) == size {
+      return i
+    }
+    i = i + 1
+  }
+  return -1
+}
+
+assert(uniq_substring_idx("bvwbjplbgvbhsrlpgdmjqwftvncz", 4) == 5, "error 1")
+assert(uniq_substring_idx("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 4) == 10, "error 2")
+assert(uniq_substring_idx("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 14) == 19, "error 3")
+
+assert(uniq_substring_idx(readlines("inputs/day6.txt")[0], 4) == 1779, "error prob 1")
+assert(uniq_substring_idx(readlines("inputs/day6.txt")[0], 14) == 2635, "error prob 2")
+
+println(uniq_substring_idx(readlines("inputs/day6.txt")[0], 4))
+println(uniq_substring_idx(readlines("inputs/day6.txt")[0], 14))
