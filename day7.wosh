@@ -1,0 +1,117 @@
+fn walk(tree, path) {
+  i = 0
+  for i < len(path) {
+    tree = tree[path[-1 - i]]
+    i = i + 1
+  }
+  tree
+}
+
+fn add_dir(tree, path, dir) {
+  tree = walk(tree, path)
+  tree[dir] = {}
+}
+
+fn add_file(tree, path, file, size) {
+  tree = walk(tree, path)
+  tree[file] = size
+}
+
+# add files and dirs in tree
+fn ls(tree, path, lines, i) {
+  for i < len(lines) && !lines[i].startswith("$") {
+    if lines[i].startswith("dir") {
+      add_dir(tree, path, lines[i][4:])
+    } else {
+      [size, file] = lines[i].split(" ")
+      add_file(tree, path, file, atoi(size))
+    }
+    i = i + 1
+  }
+  i
+}
+
+# return new path
+fn cd(path, dir) {
+  if dir == "/" {
+    []
+  } else if dir == ".." {
+    path[1:]
+  } else {
+    dir :: path
+  }
+}
+
+fn parse_commands(lines) {
+  path = []
+  tree = {}
+
+  i = 0
+  for i < len(lines) {
+    cmd = lines[i]
+    if cmd[2:4] == "cd" {
+      dir = cmd[5:]
+      path = cd(path, dir)
+      i = i + 1
+    } else if cmd[2:4] == "ls" {
+      i = ls(tree, path, lines, i + 1)
+    } else {
+      assert(false, "Should not happen")
+    }
+  }
+  tree
+}
+
+fn tree_size(tree) {
+  size = 0
+
+  it = items(tree)
+  i = 0
+  for i < len(it) {
+    [k, v] = it[i]
+    if type(v) == Int {
+      size = size + v
+    } else {
+      size = size + tree_size(v)
+    }
+    i = i + 1
+  }
+  size
+}
+
+fn dir_sizes(tree) {
+  sizes = []
+  it = items(tree)
+  i = 0
+  for i < len(it) {
+    [k, v] = it[i]
+    if type(v) == Map {
+      sizes = sizes + dir_sizes(v)
+    }
+    i = i + 1
+  }
+  tree_size(tree) :: sizes
+}
+
+fn at_most(n) {
+  fn p(it) { it <= n }
+  return p
+}
+
+fn at_least(n) {
+  fn p(it) { it >= n }
+  return p
+}
+
+tree = parse_commands(readlines("inputs/day7.txt"))
+
+res1 = dir_sizes(tree).filter(at_most(100000)).sum()
+assert(res1 == 1490523, "prob 1")
+println(res1)
+
+disk = 70000000
+free = disk - tree_size(tree)
+needed = 30000000 - free
+res2 = sort(dir_sizes(tree)).filter(at_least(needed)).head()
+assert(res2 == 12390492, "prob 2")
+println(res2)

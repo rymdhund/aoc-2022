@@ -266,3 +266,11 @@ fn (s: Str) to_list() {
   }
   res.reverse()
 }
+
+fn (s: Str) startswith(prefix) {
+  s[:len(prefix)] == prefix
+}
+
+assert("abc".startswith("ab"), "startswith 1")
+assert(!"abc".startswith("b"), "startswith 2")
+assert(!"abc".startswith("abde"), "startswith 3")
