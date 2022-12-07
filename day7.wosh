@@ -1,8 +1,7 @@
 fn walk(tree, path) {
-  i = 0
-  for i < len(path) {
-    tree = tree[path[-1 - i]]
-    i = i + 1
+  it = path.reverse().iter()
+  for it.next() {
+    tree = tree[it.val()]
   }
   tree
 }
@@ -18,17 +17,17 @@ fn add_file(tree, path, file, size) {
 }
 
 # add files and dirs in tree
-fn ls(tree, path, lines, i) {
-  for i < len(lines) && !lines[i].startswith("$") {
-    if lines[i].startswith("dir") {
-      add_dir(tree, path, lines[i][4:])
+fn ls(tree, path, lines) {
+  it = lines.iter()
+  for it.next() && !it.val().startswith("$") {
+    if it.val().startswith("dir") {
+      add_dir(tree, path, it.val()[4:])
     } else {
-      [size, file] = lines[i].split(" ")
+      [size, file] = it.val().split(" ")
       add_file(tree, path, file, atoi(size))
     }
-    i = i + 1
   }
-  i
+  it.idx() # return number of consumed items
 }
 
 # return new path
@@ -52,12 +51,12 @@ fn parse_commands(lines) {
     if cmd[2:4] == "cd" {
       dir = cmd[5:]
       path = cd(path, dir)
-      i = i + 1
     } else if cmd[2:4] == "ls" {
-      i = ls(tree, path, lines, i + 1)
+      i = i + ls(tree, path, lines[i+1:])
     } else {
       assert(false, "Should not happen")
     }
+    i = i + 1
   }
   tree
 }
@@ -65,30 +64,26 @@ fn parse_commands(lines) {
 fn tree_size(tree) {
   size = 0
 
-  it = items(tree)
-  i = 0
-  for i < len(it) {
-    [k, v] = it[i]
+  it = tree.iter()
+  for it.next() {
+    [k, v] = it.val()
     if type(v) == Int {
       size = size + v
     } else {
       size = size + tree_size(v)
     }
-    i = i + 1
   }
   size
 }
 
 fn dir_sizes(tree) {
   sizes = []
-  it = items(tree)
-  i = 0
-  for i < len(it) {
-    [k, v] = it[i]
+  it = tree.iter()
+  for it.next() {
+    [k, v] = it.val()
     if type(v) == Map {
       sizes = sizes + dir_sizes(v)
     }
-    i = i + 1
   }
   tree_size(tree) :: sizes
 }

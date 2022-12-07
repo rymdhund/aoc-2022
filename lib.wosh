@@ -274,3 +274,57 @@ fn (s: Str) startswith(prefix) {
 assert("abc".startswith("ab"), "startswith 1")
 assert(!"abc".startswith("b"), "startswith 2")
 assert(!"abc".startswith("abde"), "startswith 3")
+
+
+#################
+# Map functions #
+#################
+
+######################
+# Iterator functions #
+######################
+
+# Hack to implement Iterator before we have newtype
+
+fn (iter: Map) next() {
+  i = iter["i"] + 1
+  iter["i"] = i
+  i < len(iter["lst"])
+}
+
+fn (iter: Map) val() {
+  iter["lst"][iter["i"]]
+}
+
+fn (iter: Map) idx() {
+  iter["i"]
+}
+
+fn (lst: List) iter() {
+  {"i": -1, "lst": lst}
+}
+
+fn (m: Map) iter() {
+  {"i": -1, "lst": items(m)}
+}
+
+fn test_iter() {
+  it = [1, 2].iter()
+  assert(it.next(), "iter 1 next")
+  assert(it.val() == 1, "iter 1 val")
+  assert(it.idx() == 0, "iter 1 idx")
+
+  assert(it.next(), "iter 2 next")
+  assert(it.val() == 2, "iter 2 val")
+  assert(it.idx() == 1, "iter 2 idx")
+
+  assert(!it.next(), "iter 3")
+
+  it = {"x": 1}.iter()
+  assert(it.next(), "itermap 1 next")
+  assert(it.val()[0] == "x", "itermap 1 val")
+  assert(it.val()[1] == 1, "itermap 1 val")
+  assert(it.idx() == 0, "itermap 1 idx")
+  assert(!it.next(), "itermap")
+}
+test_iter()
