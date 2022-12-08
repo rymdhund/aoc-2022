@@ -1,0 +1,84 @@
+fn parse(input) {
+  input.map((line) => line.to_list().map((c) => ord(c) - ord("0")))
+}
+
+fn count_visible(trees) {
+  visible = {}
+
+  fn mark_visible(col, row, delta_col, delta_row) {
+    max = -1
+
+    for row >= 0 && row < len(trees) && col >= 0 && col < len(trees[0]) && max < 9 {
+      tree = trees[row][col]
+      if tree > max {
+        coord = str(col) + "," + str(row)
+        visible[coord] = true
+        max = tree
+      }
+      row = row + delta_row
+      col = col + delta_col
+    }
+  }
+
+  # Loop over each row and column
+  range(0, len(trees)).foreach((row) => {
+    mark_visible(0, row, 1, 0)
+    mark_visible(len(trees)-1, row, -1, 0)
+  })
+  range(0, len(trees[0])).foreach((col) => {
+    mark_visible(col, 0, 0, 1)
+    mark_visible(col, len(trees[0])-1, 0, -1)
+  })
+
+  len(visible)
+}
+
+fn count_score(trees) {
+  scores = {}
+
+  fn mark_score(col, row, delta_col, delta_row) {
+    # keep track of idx to last tree of each height
+    last = {}
+    range(0, 10).foreach((i) => last[str(i)] = 0)
+
+    idx = 0
+    for row >= 0 && row < len(trees) && col >= 0 && col < len(trees[0]) {
+      tree = trees[row][col]
+
+      dist = range(tree, 10).map((i) => abs(idx - last[str(i)])).min()
+      coord = str(col) + "," + str(row)
+      if scores[coord] != () {
+        scores[coord] = scores[coord] * dist
+      } else {
+        scores[coord] = dist
+      }
+
+      row = row + delta_row
+      col = col + delta_col
+      last[str(tree)] = idx
+      idx = idx + 1
+    }
+  }
+
+  # Loop over each row and column
+  range(0, len(trees)).foreach((row) => {
+    mark_score(0, row, 1, 0)
+    mark_score(len(trees)-1, row, -1, 0)
+  })
+  range(0, len(trees[0])).foreach((col) => {
+    mark_score(col, 0, 0, 1)
+    mark_score(col, len(trees[0])-1, 0, -1)
+  })
+
+  scores.values().max()
+}
+
+trees = parse(readlines("inputs/day8.txt"))
+
+res1 = count_visible(trees)
+assert(res1 == 1543, "error 1")
+println(res1)
+
+res2 = count_score(trees)
+assert(res2 == 595080, "error 2")
+println(res2)
