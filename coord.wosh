@@ -1,0 +1,27 @@
+type Coord(x: Int, y: Int)
+
+fn parse_dir(dir) {
+  if dir == "R" {
+    Coord(1, 0)
+  } else if dir == "L" {
+    Coord(-1, 0)
+  } else if dir == "U" {
+    Coord(0, 1)
+  } else if dir == "D" {
+    Coord(0, -1)
+  } else {
+    assert(false, "should not happen")
+  }
+}
+
+fn (c: Coord) sub(c2) {
+  Coord(c.x - c2.x, c.y - c2.y)
+}
+
+fn (c: Coord) add(c2) {
+  Coord(c.x + c2.x, c.y + c2.y)
+}
+
+fn (c: Coord) str() {
+  str(c.x) + ", " + str(c.y)
+}

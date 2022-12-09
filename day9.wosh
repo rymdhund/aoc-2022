@@ -1,0 +1,61 @@
+assert(Coord(1, 2).x == 1, "Need coord lib")
+
+fn parse(line) {
+  [dir, n] = line.split(" ")
+  [parse_dir(dir), atoi(n)]
+}
+
+fn d(i) {
+  if i < 0 {
+    -1
+  } else if i > 0 {
+    1
+  } else {
+    0
+  }
+}
+
+fn step_tail(tail, head) {
+  delta = head - tail
+  if abs(delta.x) > 1 || abs(delta.y) > 1 {
+    mov = Coord(d(delta.x), d(delta.y))
+    tail + mov
+  } else {
+    tail
+  }
+}
+
+fn solve(input, num_knots) {
+  knots = range(0, num_knots).map((i) => Coord(0, 0))
+  tail_path = {}
+  tail_path[knots.head().str()] = true
+
+  input.foreach((cmd) => {
+    [dir, steps] = cmd
+    range(0, steps).foreach((_) => {
+      new_knots = [knots.head() + dir]  # Move head
+      range(1, num_knots).foreach((i) => {
+        new_knots = step_tail(knots[i], new_knots.head()) :: new_knots
+      })
+      tail_path[new_knots.head().str()] = true
+      knots = new_knots.reverse()
+    })
+  })
+  len(tail_path)
+}
+
+# Test input
+input_test = readlines("inputs/day9_test.txt").map(parse)
+assert(solve(input_test, 2) == 13, "test error 1")
+assert(solve(input_test, 10) == 1, "test error 2")
+
+# Real input
+input = readlines("inputs/day9.txt").map(parse)
+
+res1 = solve(input, 2)
+println(res1)
+assert(res1 == 6376, "error 1")
+
+res2 = solve(input, 10)
+println(res2)
+assert(res2 == 2607, "error 2")
