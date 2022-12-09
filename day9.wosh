@@ -27,8 +27,7 @@ fn step_tail(tail, head) {
 
 fn solve(input, num_knots) {
   knots = range(0, num_knots).map((i) => Coord(0, 0))
-  tail_path = {}
-  tail_path[knots.head().str()] = true
+  tail_path = new_set([knots.head()])
 
   input.foreach((cmd) => {
     [dir, steps] = cmd
@@ -37,11 +36,11 @@ fn solve(input, num_knots) {
       range(1, num_knots).foreach((i) => {
         new_knots = step_tail(knots[i], new_knots.head()) :: new_knots
       })
-      tail_path[new_knots.head().str()] = true
+      tail_path.add(new_knots.head())
       knots = new_knots.reverse()
     })
   })
-  len(tail_path)
+  tail_path.len()
 }
 
 # Test input

@@ -382,3 +382,52 @@ fn test_iter() {
   assert(!it.next(), "itermap")
 }
 test_iter()
+
+
+#################
+# Set functions #
+#################
+
+type Set(m: Map)
+
+fn (s: Set) add(item) {
+  s.m[str(item)] = true
+}
+
+fn (s: Set) rm(item) {
+  key = str(item)
+  if s.m[key] != () {
+    s.m[key] = false
+  }
+}
+
+fn (s: Set) contains(item) {
+  return s.m[str(item)] == true
+}
+
+fn (s: Set) len() {
+  len(s.m.values().filter((v) => v))
+}
+
+fn new_set(lst: List) {
+  s = Set({})
+  lst.foreach((it) => s.add(it))
+  s
+}
+
+fn test_set() {
+  s = new_set([1, 2])
+
+  assert(s.contains(1), "set 1")
+  assert(!s.contains(3), "set 2")
+
+  s.add(3)
+  assert(s.contains(3), "set 3")
+  assert(s.len() == 3, "set 4")
+
+  s.rm(2)
+  s.rm(3)
+  assert(!s.contains(3), "set 5")
+  assert(s.len() == 1, "set 6")
+}
+test_set()
