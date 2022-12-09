@@ -1,4 +1,5 @@
-assert(Coord(1, 2).x == 1, "Need coord lib")
+#!import lib.wosh
+#!import coord.wosh
 
 fn parse(line) {
   [dir, n] = line.split(" ")
