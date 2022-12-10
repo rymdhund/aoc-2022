@@ -65,9 +65,24 @@ fn (lst: List) map(f) {
   res.reverse()
 }
 
-fn add_1(n) { n + 1 }
+assert([1, 2, 3].map((n) => n + 1) == [2, 3, 4], "map")
 
-assert([1, 2, 3].map(add_1) == [2, 3, 4], "map")
+fn (lst: List) flatmap(f) {
+  res = []
+  i = 0
+  for i < len(lst) {
+    j = 0
+    xs = f(lst[i])
+    for j < len(xs) {
+      res = xs[j] :: res
+      j = j + 1
+    }
+    i = i + 1
+  }
+  res.reverse()
+}
+
+assert([1, 2, 3].flatmap((n) => [n, n]) == [1, 1, 2, 2, 3, 3], "flatmap")
 
 fn (lst: List) filter(f) {
   res = []

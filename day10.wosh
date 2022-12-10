@@ -1,0 +1,54 @@
+#!import lib.wosh
+
+type Cmd(cycles: Int, diff: Int)
+
+fn parse(line) {
+  if line == "noop" {
+    Cmd(1, 0)
+  } else if line[:4] == "addx" {
+    Cmd(2, atoi(line[5:]))
+  } else {
+    assert(false, "invalid input")
+  }
+}
+
+fn x_values(commands) {
+  x = 1
+  commands.flatmap((cmd) => {
+    oldx = x
+    x = x + cmd.diff
+    range(0, cmd.cycles).map((_) => oldx)
+  })
+}
+
+fn solve1(xs) {
+  sum = 0
+  j = 20
+  for j <= 220 {
+    sum = sum + xs[j-1] * j
+    j = j + 40
+  }
+  sum
+}
+
+fn solve2(xs) {
+  row_pixels = range(0, 6).map((row) => {
+    line_pixels = range(0, 40).map((col) => {
+      x = xs[row * 40 + col]
+      if abs(col - x) <= 1 { "#" } else { " " }
+    })
+    "".join(line_pixels)
+  })
+  "\n".join(row_pixels)
+}
+
+
+xs = x_values(readlines("inputs/day10_test.txt").map(parse))
+assert(solve1(xs) == 13140, "test error")
+
+xs = x_values(readlines("inputs/day10.txt").map(parse))
+res1 = solve1(xs)
+assert(res1 == 11780, "res1")
+
+res2 = solve2(xs)
+println(res2)
