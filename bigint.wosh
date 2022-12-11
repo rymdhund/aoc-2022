@@ -1,0 +1,80 @@
+type Bigint(lst: List)
+
+fn new_bigint(n) {
+  breakpoint = 1000000
+  if n == 0 {
+    Bigint([])
+  } else {
+    Bigint(n % breakpoint :: new_bigint(n / breakpoint).lst)
+  }
+}
+
+fn (x: Bigint) shiftright() {
+  if len(x.lst) == 0 { Bigint([]) } else { Bigint(0 :: x.lst) }
+}
+
+
+fn (x: Bigint) shiftleft() {
+  Bigint(x.lst[1:])
+}
+
+fn (a: Bigint) add(b) {
+  breakpoint = 1000000
+  if len(a.lst) == 0 {
+    b
+  } else if len(b.lst) == 0 {
+    a
+  } else {
+    x = a.lst[0] + b.lst[0]
+    first = x % breakpoint
+    rest = new_bigint(x / breakpoint)
+    c = a.shiftleft() + b.shiftleft() + rest
+    Bigint(first :: c.lst)
+  }
+}
+
+fn (a: Bigint) add_int(n: Int) {
+  a + new_bigint(n)
+}
+
+fn (a: Bigint) mult(b) {
+  if len(a.lst) == 0 || len(b.lst) == 0{
+    new_bigint(0)
+  } else {
+    n1n2 = new_bigint(a.lst[0] * b.lst[0])
+    m1n2 = a.shiftleft() * new_bigint(b.lst[0])
+    m2n1 = b.shiftleft() * new_bigint(a.lst[0])
+    m1m2 = a.shiftleft() * b.shiftleft()
+    res = n1n2 + m1n2.shiftright() + m2n1.shiftright() + m1m2.shiftright().shiftright()
+    res
+  }
+}
+
+fn (a: Bigint) mult_int(n: Int) {
+  a * new_bigint(n)
+}
+
+
+fn (a: Bigint) eq(b) {
+  if len(a.lst) != len(b.lst) {
+    false
+  } else if len(a.lst) == 0 {
+    true
+  } else if a.lst[0] != b.lst[0] {
+    false
+  } else {
+    a.shiftleft().eq(b.shiftleft())
+  }
+}
+
+
+fn test_bigint() {
+  breakpoint = 1000000
+  assert(Bigint([132]) + Bigint([111]) == Bigint([243]), "Bigint add 1")
+  assert(new_bigint(breakpoint) + new_bigint(breakpoint) == Bigint([0, 2]), "Bigint add 2")
+  assert(new_bigint(breakpoint-1) + new_bigint(1) == Bigint([0, 1]), "Bigint add 3")
+  assert(new_bigint(1) * new_bigint(1) == Bigint([1]), "Bigint mult 1")
+  assert(new_bigint(breakpoint) * new_bigint(breakpoint) == Bigint([0, 0, 1]), "Bigint mult 2")
+}
+test_bigint()
+

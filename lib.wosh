@@ -281,27 +281,6 @@ assert(range(1, 4) == [1, 2, 3], "range")
 # String functions #
 ####################
 
-fn (s: Str) split(sep: Str) {
-  if len(s) == 0 {
-    []
-  } else {
-    res = []
-    cur = 0
-    i = 0
-    for i < len(s) {
-      if s[i] == sep {
-        res = s[cur:i] :: res
-        cur = i+1
-      }
-      i = i + 1
-    }
-    res = s[cur:i] :: res
-  }
-  res.reverse()
-}
-
-assert("a,b".split(",") == ["a", "b"], "split")
-
 fn (s: Str) join(strings) {
   if len(strings) == 0 {
     ""
@@ -335,6 +314,35 @@ fn (s: Str) startswith(prefix) {
 assert("abc".startswith("ab"), "startswith 1")
 assert(!"abc".startswith("b"), "startswith 2")
 assert(!"abc".startswith("abde"), "startswith 3")
+
+fn (s: Str) split(sep: Str) {
+  if len(s) == 0 {
+    []
+  } else if len(sep) == 0 {
+    s.to_list()
+  } else{
+    sep_len = len(sep)
+    res = []
+    cur = 0
+    i = 0
+    for i < len(s) - (sep_len) {
+      if s[i:i+sep_len] == sep {
+        res = s[cur:i] :: res
+        cur = i + sep_len
+        i = i + sep_len
+      } else {
+        i = i + 1
+      }
+    }
+    res = s[cur:] :: res
+    res.reverse()
+  }
+}
+
+assert("a,b".split(",") == ["a", "b"], "split 1")
+assert("a,,b".split(",") == ["a", "", "b"], "split 2")
+assert("ab".split("") == ["a", "b"], "split 3")
+assert("abcd".split("bc") == ["a", "d"], "split 4")
 
 
 #################

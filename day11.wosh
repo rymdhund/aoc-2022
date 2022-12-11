@@ -1,0 +1,76 @@
+#!import lib.wosh
+
+type Monkey(action: Int, div: Int, then: Int, els: Int)
+
+fn parse_monkey(lines) {
+  items = lines[1][18:].split(", ").map(atoi)
+
+  [op, by] = lines[2][23:].split(" ")
+  action = if by == "old" && op == "+" {
+    (x) => x + x
+  } else if by == "old" && op == "*" {
+    (x) => x * x
+  } else if op == "+" {
+    (x) => x + atoi(by)
+  } else if op == "*" {
+    (x) => x * atoi(by)
+  } else {
+    assert(false, "invalid operator")
+  }
+
+  test_divisible = atoi(lines[3][21:])
+  then = atoi(lines[4].split(" monkey ")[1])
+  els = atoi(lines[5].split(" monkey ")[1])
+
+  [Monkey(action, test_divisible, then, els), items]
+}
+
+fn solve(input, rounds, divisor) {
+  monkey_lists = input.split("").map((monkey_lines) => parse_monkey(monkey_lines))
+  monkeys = monkey_lists.map((x) => x[0])
+
+  m_items = {}
+  inspections = {}
+
+  base = divisor
+  range(0, len(monkeys)).foreach((i) => {
+    m_items[str(i)] = monkey_lists[i][1]
+    inspections[str(i)] = 0
+    base = base * monkeys[i].div
+  })
+
+
+  range(0, rounds).foreach((round) => {
+    range(0, len(monkeys)).foreach((i) => {
+      monkey = monkeys[i]
+      items = m_items[str(i)]
+      inspections[str(i)] = inspections[str(i)] + len(items)
+      items.foreach((item) => {
+        a = monkey.action
+        new = (a(item) / divisor) % base
+
+        to = if new % monkey.div == 0 { monkey.then } else { monkey.els }
+
+        m_items[str(to)] = m_items[str(to)] + [new]
+      })
+      m_items[str(i)] = []
+    })
+  })
+
+  [a, b] = sort(inspections.values())[-2:]
+  a * b
+}
+
+input = readlines("inputs/day11_test.txt")
+test1 = solve(input, 20, 3)
+println(test1)
+assert(test1 == 10605, "test1")
+
+input = readlines("inputs/day11.txt")
+res1 = solve(input, 20, 3)
+println(res1)
+assert(res1 == 88208, "res1")
+
+res2 = solve(input, 10000, 1)
+println(res2)
+assert(res2 == 21115867968, "res2")
