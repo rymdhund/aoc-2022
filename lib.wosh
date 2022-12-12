@@ -129,6 +129,10 @@ fn sort(lst) {
 
 assert(sort([3, 2, 4, 2]) == [2, 2, 3, 4], "sort")
 
+fn (lst: List) to_array() {
+  array(lst)
+}
+
 fn (lst: List) uniq() {
   if len(lst) == 0 {
     []

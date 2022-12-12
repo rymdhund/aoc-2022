@@ -25,3 +25,24 @@ fn (c: Coord) add(c2) {
 fn (c: Coord) str() {
   str(c.x) + ", " + str(c.y)
 }
+
+fn (c: Coord) eq(c2) {
+  c.x == c2.x && c.y == c2.y
+}
+
+fn (c: Coord) neigh4() {
+  [
+    Coord(c.x+1, c.y),
+    Coord(c.x, c.y+1),
+    Coord(c.x-1, c.y),
+    Coord(c.x, c.y-1)
+  ]
+}
+
+fn (c: Coord) within(x, width, y, height) {
+  c.x >= x && c.x < (x+width) && c.y >= y && c.y < (y+height)
+}
+
+fn (c: Coord) lookup(area) {
+  area[c.y][c.x]
+}

@@ -1,0 +1,80 @@
+#!import lib.wosh
+#!import coord.wosh
+
+fn parse(lines) {
+  start = Coord(-1, -1)
+  end = Coord(-1, -1)
+
+  heights = range(0, len(lines)).map((row) => {
+    range(0, len(lines[0])).map((col) => {
+      c = lines[row][col]
+      if c == "S" {
+        start = Coord(col, row)
+        0
+      } else if c == "E" {
+        end = Coord(col, row)
+        ord("z") - ord("a")
+      } else {
+        ord(c) - ord("a")
+      }
+    }).to_array()
+  }).to_array()
+
+  [heights, start, end]
+}
+
+fn is_ok(heights, from, to) {
+  to.lookup(heights) <= from.lookup(heights) + 1
+}
+
+fn solve(heights, goal, end) {
+  height = len(heights)
+  width = len(heights[0])
+
+  visited = Set({})
+  next = [end]
+
+  dist = 0
+  done = false
+  for len(next) > 0 && !done {
+    next = next.flatmap((coord) => {
+      if goal(coord) {
+        done = true
+        []
+      } else if visited.contains(coord) {
+        []
+      } else {
+        visited.add(coord)
+        coord.neigh4().filter(
+          (c) => c.within(0, width, 0, height) && is_ok(heights, c, coord) && !visited.contains(c)
+        )
+      }
+    })
+    dist = dist + 1
+  }
+  dist - 1
+}
+
+fn solve1(input) {
+  [heights, start, end] = input
+  solve(heights, (c) => c == start, end)
+}
+
+fn solve2(input) {
+  [heights, start, end] = input
+  solve(heights, (c) => c.lookup(heights) == 0, end)
+}
+
+
+input = parse(readlines("inputs/day12_test.txt"))
+test1 = solve1(input)
+assert(test1 == 31, "test1")
+
+input = parse(readlines("inputs/day12.txt"))
+res1 = solve1(input)
+println(res1)
+assert(res1 == 352, "res1")
+
+res2 = solve2(input)
+println(res2)
+assert(res2 == 345, "res2")
