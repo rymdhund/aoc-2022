@@ -106,6 +106,17 @@ fn (lst: List) foreach(f) {
 
 assert(["a", "b", "3"].filter(is_alpha) == ["a", "b"], "filter")
 
+fn (lst: List) any(f) {
+  i = 0
+  for i < len(lst) {
+    if f(lst[i]) {
+      return true
+    }
+    i = i + 1
+  }
+  false
+}
+
 fn sort(lst) {
   if len(lst) == 0 || len(lst) == 1 {
     lst

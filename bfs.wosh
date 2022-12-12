@@ -1,0 +1,24 @@
+
+# neighbour_fn: coord => List[coord]
+# goal_fn: coord => bool
+# Returns number of steps
+fn bfs(start, neighbour_fn, goal_fn) {
+  visited = Set({})
+  next = [start]
+
+  dist = 0
+  done = false
+  for len(next) > 0 && !next.any(goal_fn) {
+    next = next.flatmap((coord) => {
+      if visited.contains(coord) {
+        []
+      } else {
+        visited.add(coord)
+        neighbour_fn(coord).filter((c) => !visited.contains(c))
+      }
+    })
+    dist = dist + 1
+  }
+  assert(next.any(goal_fn), "Did not find solution")
+  dist
+}

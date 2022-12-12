@@ -1,5 +1,6 @@
 #!import lib.wosh
 #!import coord.wosh
+#!import bfs.wosh
 
 fn parse(lines) {
   start = Coord(-1, -1)
@@ -23,46 +24,34 @@ fn parse(lines) {
   [heights, start, end]
 }
 
+# check that `from` is within bounds and that heights allow movement
 fn is_ok(heights, from, to) {
-  to.lookup(heights) <= from.lookup(heights) + 1
-}
-
-fn solve(heights, goal, end) {
   height = len(heights)
   width = len(heights[0])
 
-  visited = Set({})
-  next = [end]
+  from.within(0, width, 0, height) && to.lookup(heights) <= from.lookup(heights) + 1
+}
 
-  dist = 0
-  done = false
-  for len(next) > 0 && !done {
-    next = next.flatmap((coord) => {
-      if goal(coord) {
-        done = true
-        []
-      } else if visited.contains(coord) {
-        []
-      } else {
-        visited.add(coord)
-        coord.neigh4().filter(
-          (c) => c.within(0, width, 0, height) && is_ok(heights, c, coord) && !visited.contains(c)
-        )
-      }
-    })
-    dist = dist + 1
+fn solve(heights, end, goal_fn) {
+  neighbour_fn = (coord) => {
+    coord.neigh4().filter((c) => is_ok(heights, c, coord))
   }
-  dist - 1
+
+  bfs(
+    end,
+    neighbour_fn,
+    goal_fn,
+  )
 }
 
 fn solve1(input) {
   [heights, start, end] = input
-  solve(heights, (c) => c == start, end)
+  solve(heights, end, (c) => c == start)
 }
 
 fn solve2(input) {
   [heights, start, end] = input
-  solve(heights, (c) => c.lookup(heights) == 0, end)
+  solve(heights, end, (c) => c.lookup(heights) == 0)
 }
 
 
