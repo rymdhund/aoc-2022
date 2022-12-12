@@ -1,3 +1,5 @@
+#!import lib.wosh
+
 fn walk(tree, path) {
   it = path.reverse().iter()
   for it.next() {
@@ -67,7 +69,7 @@ fn tree_size(tree) {
   it = tree.iter()
   for it.next() {
     [k, v] = it.val()
-    if type(v) == Int {
+    if typeof(v) == Int {
       size = size + v
     } else {
       size = size + tree_size(v)
@@ -81,7 +83,7 @@ fn dir_sizes(tree) {
   it = tree.iter()
   for it.next() {
     [k, v] = it.val()
-    if type(v) == Map {
+    if typeof(v) == Map {
       sizes = sizes + dir_sizes(v)
     }
   }

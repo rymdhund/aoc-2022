@@ -1,3 +1,5 @@
+#!import lib.wosh
+
 fn prio(letter) {
   o = ord(letter)
   if o > ord("Z") {

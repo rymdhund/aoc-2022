@@ -1,3 +1,5 @@
+#!import lib.wosh
+
 fn uniq_substring_idx(input, size) {
   i = size
   for i < len(input) {

@@ -1,3 +1,5 @@
+#!import lib.wosh
+
 fn parse(input) {
   input.map((line) => line.to_list().map((c) => ord(c) - ord("0")))
 }
