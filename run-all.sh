@@ -2,7 +2,19 @@
 
 set -euo pipefail
 
-for f in $(ls day*.wosh); do
-  echo "running $f"
-  ./run.sh $f
+here=$(pwd)
+
+cd ../wosh
+go build cmd/wosh/wosh.go
+cd $here
+
+for file in $(ls day*.wosh); do
+  echo "running $file"
+
+  libs=()
+  for lib in $(grep '#!import' $file | cut -d" " -f2); do
+    libs+=("$lib")
+  done
+
+  ../wosh/wosh ${libs[*]} $file
 done

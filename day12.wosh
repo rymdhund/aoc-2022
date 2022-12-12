@@ -6,8 +6,8 @@ fn parse(lines) {
   start = Coord(-1, -1)
   end = Coord(-1, -1)
 
-  heights = range(0, len(lines)).map((row) => {
-    range(0, len(lines[0])).map((col) => {
+  heights = range(0, len(lines)).map(row => {
+    range(0, len(lines[0])).map(col => {
       c = lines[row][col]
       if c == "S" {
         start = Coord(col, row)
@@ -34,7 +34,7 @@ fn is_ok(heights, from, to) {
 
 fn solve(heights, end, goal_fn) {
   neighbour_fn = (coord) => {
-    coord.neigh4().filter((c) => is_ok(heights, c, coord))
+    coord.neigh4().filter(c => is_ok(heights, c, coord))
   }
 
   bfs(
@@ -46,12 +46,12 @@ fn solve(heights, end, goal_fn) {
 
 fn solve1(input) {
   [heights, start, end] = input
-  solve(heights, end, (c) => c == start)
+  solve(heights, end, c => c == start)
 }
 
 fn solve2(input) {
   [heights, start, end] = input
-  solve(heights, end, (c) => c.lookup(heights) == 0)
+  solve(heights, end, c => c.lookup(heights) == 0)
 }
 
 

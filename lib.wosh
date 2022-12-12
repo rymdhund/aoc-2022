@@ -65,7 +65,7 @@ fn (lst: List) map(f) {
   res.reverse()
 }
 
-assert([1, 2, 3].map((n) => n + 1) == [2, 3, 4], "map")
+assert([1, 2, 3].map(n => n + 1) == [2, 3, 4], "map")
 
 fn (lst: List) flatmap(f) {
   res = []
@@ -82,7 +82,7 @@ fn (lst: List) flatmap(f) {
   res.reverse()
 }
 
-assert([1, 2, 3].flatmap((n) => [n, n]) == [1, 1, 2, 2, 3, 3], "flatmap")
+assert([1, 2, 3].flatmap(n => [n, n]) == [1, 1, 2, 2, 3, 3], "flatmap")
 
 fn (lst: List) filter(f) {
   res = []
@@ -365,11 +365,11 @@ assert("abcd".split("bc") == ["a", "d"], "split 4")
 #################
 
 fn (m: Map) values() {
-  items(m).map((pair) => pair[1])
+  items(m).map(pair => pair[1])
 }
 
 fn (m: Map) keys() {
-  items(m).map((pair) => pair[0])
+  items(m).map(pair => pair[0])
 }
 
 ######################
@@ -444,12 +444,12 @@ fn (s: Set) contains(item) {
 }
 
 fn (s: Set) len() {
-  len(s.m.values().filter((v) => v))
+  len(s.m.values().filter(v => v))
 }
 
 fn new_set(lst: List) {
   s = Set({})
-  lst.foreach((it) => s.add(it))
+  lst.foreach(it => s.add(it))
   s
 }
 
