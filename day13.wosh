@@ -1,0 +1,104 @@
+#!import lib.wosh
+
+fn token_stream(source) {
+  i = 0
+  () => {
+    if i >= len(source) {
+      return ""
+    }
+    if source[i] == "," {
+      i = i + 1
+    }
+    j = i + 1
+    for j < len(source) && is_digit(source[i]) && is_digit(source[j]) {
+      j = j + 1
+    }
+    ret = source[i:j]
+    i = j
+    ret
+  }
+}
+
+fn parse_list(tokens) {
+  res = []
+
+  t = tokens()
+  for t != "]" {
+    if t == "[" {
+      res = res + [parse_list(tokens)]
+    } else {
+      res = res + [atoi(t)]
+    }
+    t = tokens()
+  }
+  res
+}
+
+fn parse_line(line) {
+  parse_list(token_stream(line[1:]))
+}
+
+fn cmp_int(a, b) {
+  if a < b { -1 } else if b < a { 1 } else { 0 }
+}
+
+fn cmp_list(a, b) {
+  if len(a) == 0 {
+    if len(b) == 0 { 0 } else { -1 }
+  } else if len(b) == 0 {
+    1
+  } else {
+    x = cmp(a[0], b[0])
+    if x != 0 { x } else { cmp_list(a[1:], b[1:]) }
+  }
+}
+
+fn cmp(a, b) {
+  if typeof(a) == Int {
+    if typeof(b) == Int {
+      cmp_int(a, b)
+    } else {
+      cmp_list([a], b)
+    }
+  } else if typeof(b) == List {
+    cmp_list(a, b)
+  } else {
+    cmp_list(a, [b])
+  }
+}
+
+fn solve1(lines) {
+  pairs = lines.split("").map(p => {
+    [parse_line(p[0]), parse_line(p[1])]
+  })
+  range(0, len(pairs)).map(i => {
+    [a, b] = pairs[i]
+    if cmp(a, b) == -1 { i + 1 } else { 0 }
+  }).sum()
+}
+
+fn solve2(lines) {
+  input = lines.filter(line => line != "").map(parse_line)
+
+  x = [[2]]
+  y = [[6]]
+
+  sorted = sort_cmp(input + [x, y], (a, b) => cmp(a, b) <= 0)
+
+  i = find(sorted, x) + 1
+  j = find(sorted, y) + 1
+  i * j
+}
+
+input = readlines("inputs/day13_test.txt")
+res = solve1(input)
+assert(res == 13, "test1")
+
+input = readlines("inputs/day13.txt")
+res1 = solve1(input)
+println(res1)
+assert(res1 == 5208, "res1")
+
+res2 = solve2(input)
+println(res2)
+assert(res2 == 25792, "res2")

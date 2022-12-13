@@ -7,6 +7,11 @@ fn is_alpha(c) {
   (n >= ord("a") && n <= ord("z")) || (n >= ord("A") && n <= ord("Z"))
 }
 
+fn is_digit(c) {
+  n = ord(c)
+  n >= ord("0") && n <= ord("9")
+}
+
 assert(is_alpha("a") && !is_alpha(" "), "is_alpha")
 
 #################
@@ -25,6 +30,9 @@ fn abs(i) {
 # List functions #
 ##################
 fn (lst: List) eq(lst2) {
+  if typeof(lst2) != List {
+    return false
+  }
   if len(lst) != len(lst2) {
     return false
   }
@@ -139,6 +147,28 @@ fn sort(lst) {
 }
 
 assert(sort([3, 2, 4, 2]) == [2, 2, 3, 4], "sort")
+
+fn sort_cmp(lst, leq) {
+  if len(lst) == 0 || len(lst) == 1 {
+    lst
+  } else {
+    pivot = lst[0]
+    rest = lst[1:]
+    a = []
+    b = []
+    i = 1
+    for i < len(lst) {
+      if leq(lst[i], pivot) {
+        a = lst[i] :: a
+      } else {
+        b = lst[i] :: b
+      }
+      i = i + 1
+    }
+    sort_cmp(a, leq) + [pivot] + sort_cmp(b, leq)
+  }
+}
+
 
 fn (lst: List) to_array() {
   array(lst)
@@ -291,6 +321,17 @@ fn range(from, to) {
 }
 
 assert(range(1, 4) == [1, 2, 3], "range")
+
+fn find(lst, item) {
+  i = 0
+  for i < len(lst) {
+    if lst[i] == item {
+      return i
+    }
+    i = i + 1
+  }
+  return ()
+}
 
 ####################
 # String functions #
