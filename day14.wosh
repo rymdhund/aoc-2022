@@ -1,0 +1,100 @@
+#!import lib.wosh
+#!import coord.wosh
+
+fn parse_world(input) {
+  world = Set({})
+  bottom = 0
+  lines = input.map(line => line.split(" -> ").map(p => {
+    [x, y] = p.split(",").map(atoi)
+    Coord(x, y)
+  }))
+  lines.foreach(points => {
+    range(1, len(points)).foreach(i => {
+      a = points[i-1]
+      b = points[i]
+      bottom = max(bottom, max(a.y, b.y))
+      if a.x == b.x {
+        range(min(a.y, b.y), max(a.y, b.y)+1).foreach(y => {
+          world.add(Coord(a.x, y))
+        })
+      } else if a.y == b.y {
+        range(min(a.x, b.x), max(a.x, b.x)+1).foreach(x => {
+          world.add(Coord(x, a.y))
+        })
+      } else {
+        assert(false, "invalid line")
+      }
+    })
+  })
+  [world, bottom]
+}
+
+fn drop_sand(world, pos, bottom) {
+  if world.contains(pos) {
+    return false
+  }
+  p = pos
+  for p.y <= bottom {
+    if !world.contains(p.move(0, 1)) {
+      p = p.move(0, 1)
+    } else if !world.contains(p.move(-1, 1)) {
+      p = p.move(-1, 1)
+    } else if !world.contains(p.move(1, 1)) {
+      p = p.move(1, 1)
+    } else {
+      world.add(p)
+      return true
+    }
+  }
+  return false
+}
+
+fn solve1(input) {
+  [world, bottom] = input
+
+  #draw_set(world)
+  i = 0
+  for drop_sand(world, Coord(500, 0), bottom) {
+    i = i + 1
+  }
+  #draw_set(world)
+  i
+}
+
+fn solve2(input) {
+  [world, bottom] = input
+  bottom = bottom + 2
+
+  cnt = 1
+  need_support = new_set([500])
+  layer = 1
+  for layer < bottom && need_support.len() > 0 {
+    # base of triangle starts at 500 - layer
+    start = 500 - layer
+    end = 500 + layer
+    need_support = range(start, end+1).filter(x => {
+      !world.contains(Coord(x, layer)) && (
+        need_support.contains(x) ||
+        need_support.contains(x-1) ||
+        need_support.contains(x+1)
+      )
+    }).to_set()
+    cnt = cnt + need_support.len()
+    layer = layer + 1
+  }
+  return cnt
+}
+
+input = parse_world(readlines("inputs/day14_test.txt"))
+test1 = solve1(input)
+assert(test1 == 24, "test1")
+
+input = parse_world(readlines("inputs/day14.txt"))
+res1 = solve1(input)
+println(res1)
+assert(res1 == 1199, "res1")
+
+input = parse_world(readlines("inputs/day14.txt"))
+res2 = solve2(input)
+println(res2)
+assert(res2 == 23925, "res2")

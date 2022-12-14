@@ -30,6 +30,10 @@ fn (c: Coord) eq(c2) {
   c.x == c2.x && c.y == c2.y
 }
 
+fn (c: Coord) move(x, y) {
+  Coord(c.x + x, c.y + y)
+}
+
 fn (c: Coord) neigh4() {
   [
     Coord(c.x+1, c.y),
@@ -45,4 +49,58 @@ fn (c: Coord) within(x, width, y, height) {
 
 fn (c: Coord) lookup(area) {
   area[c.y][c.x]
+}
+
+fn (c: Coord) lookup_set(area) {
+  area.contains(str(c))
+}
+
+fn draw_set(coords) {
+  width = 200
+  height = 100
+
+  min_x = 100000
+  max_x = -100000
+  min_y = 100000
+  max_y = -100000
+  coords.items().foreach(c => {
+    if c.x < min_x {
+      min_x = c.x
+    } else if c.x > max_x {
+      max_x = c.x
+    }
+    if c.y < min_y {
+      min_y = c.y
+    } else if c.y > max_y {
+      max_y = c.y
+    }
+  })
+  scale = max(
+    1 + (max_x - min_x) / width,
+    1 + (max_y - min_y) / height,
+  )
+
+  digits = len(str(max_y)) 
+  println("X".repeat((max_x-min_x + 1)/scale + digits*2))
+  range_step(min_y, max_y+1, scale).foreach(y => {
+    line = range_step(min_x, max_x+1, scale).map(x => {
+      cnt = range(0, scale).map(i => {
+        len(range(0, scale).filter(j => {
+          coords.contains(Coord(x+i, y+j))
+        }))
+      }).sum()
+      if cnt == scale*scale {
+        "#"
+      } else if cnt > 0 {
+        "+"
+      } else {
+        " "
+      }
+    })
+    row_str = str(y)
+    row_str = "".join(range(0, digits-len(row_str)).map(_ => " ")) + row_str
+    println(row_str + "".join(line) + row_str)
+  })
+  println("X".repeat((max_x-min_x + 1)/scale + digits*2))
+  println("scale: " + str(scale))
 }
