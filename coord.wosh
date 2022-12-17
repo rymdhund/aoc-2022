@@ -34,6 +34,10 @@ fn (c: Coord) move(x, y) {
   Coord(c.x + x, c.y + y)
 }
 
+fn (c: Coord) manhattan(p) {
+  abs(c.x - p.x) + abs(c.y - p.y)
+}
+
 fn (c: Coord) neigh4() {
   [
     Coord(c.x+1, c.y),

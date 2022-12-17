@@ -1,0 +1,189 @@
+#!import lib.wosh
+
+type Shape(layers: List, width)
+
+fn overlaps(world, world_size, layers, y) {
+  if y < 0 {
+    return false
+  }
+  world_top = 63 - (world_size % 64)
+  range(0, len(layers)).any(i => {
+    world_idx = y - i
+    assert(world_idx < 64, "world buffer size exceeded")
+    if world_idx < 0 {
+      false
+    } else {
+      b_and(layers[i], world[(world_idx + world_top) % 64]) != 0
+    }
+  })
+}
+
+# Move sideways
+fn move(world, world_size, x, y, shape, dir) {
+  new = shape.layers.map(p => b_shift_left(p, x + dir))
+  if overlaps(world, world_size, new, y) {
+    x
+  } else {
+    x + dir
+  }
+}
+
+fn drop(world, world_size, shape, dirs, i) {
+  x = 2
+  y = -5 # one extra since we start with dropping
+
+  for y < world_size-1 && !overlaps(world, world_size, shape.layers.map(l => b_shift_left(l, x)), y+1) {
+    y = y + 1
+
+    dir = dirs[i]
+    i = (i + 1) % len(dirs)
+
+    if dir == "<" && x > 0 {
+      x = move(world, world_size, x, y, shape, -1)
+    } else if dir == ">" && x < 7-shape.width {
+      x = move(world, world_size, x, y, shape, 1)
+    }
+  }
+  # done dropping
+
+  world_top = 63 - (world_size % 64)
+  range(0, len(shape.layers)).foreach(j => {
+    l = y - j
+    if l < 0 {
+      # Add to top of world
+      world_size = world_size + 1
+      world_top = 63 - (world_size % 64)
+      world[world_top] = b_shift_left(shape.layers[j], x)
+      y = y + 1
+    } else {
+      assert(l < 64, "world buffer exceeded")
+      world[(l+world_top) % 64] = b_or(world[(l+world_top)%64], b_shift_left(shape.layers[j], x))
+    }
+  })
+  return [i, world_size]
+}
+
+fn run(dirs, shapes, n) {
+  j = 0
+  i = 0
+  world = array(range(0, 64).map(_ => 0))
+
+  world_size = 0
+  for j < n {
+    [i, world_size] = drop(world, world_size, shapes[j % len(shapes)], dirs, i)
+    j = j + 1
+  }
+  #print_world(world, world_size)
+
+  world_size
+}
+
+# not quickest but easiest way to find cycle
+fn find_cycle(dirs, shapes) {
+  i1 = 0
+  i2 = 0
+
+  world1 = array(range(0, 64).map(_ => 0))
+  world2 = array(range(0, 64).map(_ => 0))
+  world_size1 = 0
+  world_size2 = 0
+
+  cnt1 = 0
+  cnt2 = 0
+  for true {
+    [i1, world_size1] = drop(world1, world_size1, shapes[cnt1 % len(shapes)], dirs, i1)
+    cnt1 = cnt1 + 1
+
+    [i2, world_size2] = drop(world2, world_size2, shapes[cnt2 % len(shapes)], dirs, i2)
+    cnt2 = cnt2 + 1
+    [i2, world_size2] = drop(world2, world_size2, shapes[cnt2 % len(shapes)], dirs, i2)
+    cnt2 = cnt2 + 1
+
+    if cnt1 % 5 == 0 && world_size1 > 64{
+      # check if they are the same
+      if i1 == i2 {
+        world_top1 = 63 - (world_size2 % 64)
+        world_top2 = 63 - (world_size2 % 64)
+        i = 0
+        same = true
+        for i < 64 && same {
+          if world1[(world_top1 + i) % 64] != world2[(world_top2 + i) % 64] {
+            same = false
+          }
+          i = i + 1
+        }
+        if same {
+          return cnt1
+        }
+      }
+    }
+  }
+}
+
+fn solve2(dirs, shapes) {
+  size = find_cycle(dirs, shapes)
+  println("cycle: " + str(size))
+
+  start = size
+  start_height = run(dirs, shapes, start)
+
+  cycle = size
+  cycle_height = run(dirs, shapes, start + cycle) - start_height
+
+  tot = 1000000000000
+  end = (tot - start) % cycle
+
+  end_height = run(dirs, shapes, start + end) - start_height
+
+  middle_height = ((tot - start) / cycle) * cycle_height
+
+  start_height + middle_height + end_height
+}
+
+fn print_world(w, world_size) {
+  println("size: "+str(world_size))
+  world_top = 63 - (world_size % 64)
+  range(0, min(64, world_size)).foreach(idx => {
+    layer = w[(world_top + idx) % 64]
+    cs = range(0, 7).map(i => {
+      if b_and(b_shift_right(layer, i), 1) == 1 {
+        "X"
+      } else {
+        " "
+      }
+    })
+    println("|" + "".join(cs) + "|")
+  })
+  println("---------")
+}
+
+shapes = [
+  Shape([15], 4),
+  Shape([2, 7, 2], 3),
+  Shape([7, 4, 4], 3),
+  Shape([1, 1, 1, 1], 1),
+  Shape([3, 3], 2),
+]
+
+input = readlines("inputs/day17_test.txt")[0]
+
+test1 = run(input, shapes, 2022)
+println(test1)
+assert(test1 == 3068, "test1 error")
+
+test2 = solve2(input, shapes)
+println(test2)
+assert(test2 == 1514285714288, "test2 error")
+
+input = readlines("inputs/day17.txt")[0]
+
+res1 = run(input, shapes, 2022)
+println(res1)
+assert(res1 == 3127, "res1 error")
+
+# takes a long time
+if false {
+  res2 = solve2(input, shapes)
+  println(res2)
+  assert(res2 == 1542941176480, "res2 error")
+}

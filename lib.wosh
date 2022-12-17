@@ -63,6 +63,10 @@ fn (lst: List) eq(lst2) {
   return true
 }
 
+fn (lst: List) len() {
+  len(lst)
+}
+
 fn (lst: List) get(idx) {
   lst[idx]
 }
@@ -182,6 +186,27 @@ fn sort_cmp(lst, leq) {
       i = i + 1
     }
     sort_cmp(a, leq) + [pivot] + sort_cmp(b, leq)
+  }
+}
+
+fn sort_by(lst, f) {
+  if len(lst) == 0 || len(lst) == 1 {
+    lst
+  } else {
+    pivot = lst[0]
+    rest = lst[1:]
+    a = []
+    b = []
+    i = 1
+    for i < len(lst) {
+      if f(lst[i]) <= f(pivot) {
+        a = lst[i] :: a
+      } else {
+        b = lst[i] :: b
+      }
+      i = i + 1
+    }
+    sort_by(a, f) + [pivot] + sort_by(b, f)
   }
 }
 
@@ -395,6 +420,15 @@ fn (s: Str) repeat(n) {
   }
   ret
 }
+
+fn (s: Str) takewhile(prop) {
+  i = 0
+  for i < len(s) && prop(s[i]) {
+    i = i + 1
+  }
+  s[:i]
+}
+
 
 fn (s: Str) to_list() {
   res = []
