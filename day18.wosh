@@ -1,0 +1,91 @@
+#!import lib.wosh
+
+type Coord(x, y, z)
+
+fn (c: Coord) neigh() {
+  [
+    Coord(c.x+1, c.y, c.z),
+    Coord(c.x-1, c.y, c.z),
+    Coord(c.x, c.y+1, c.z),
+    Coord(c.x, c.y-1, c.z),
+    Coord(c.x, c.y, c.z+1),
+    Coord(c.x, c.y, c.z-1),
+  ]
+}
+
+fn parse(line) {
+  [x, y, z] = line.split(",").map(atoi)
+  Coord(x, y, z)
+}
+
+fn solve1(cubes) {
+  shape = cubes.to_set()
+
+  cubes.map(c => {
+    c.neigh().filter(n => !shape.contains(n)).len()
+  }).sum()
+}
+
+fn solve2(cubes) {
+  shape = cubes.to_set()
+
+  xs = cubes.map(c => c.x)
+  minx = xs.min()
+  maxx = xs.max()
+  ys = cubes.map(c => c.y)
+  miny = ys.min()
+  maxy = ys.max()
+  zs = cubes.map(c => c.z)
+  minz = zs.min()
+  maxz = zs.max()
+
+  fn is_outside_box(coord) {
+    coord.x < minx || coord.x > maxx || coord.y < miny || coord.y > maxy || coord.z < minz || coord.z > maxz
+  }
+
+  outside = Set({})
+  new = []
+
+  fn process(c) {
+    if !is_outside_box(c) && !outside.contains(c) && !shape.contains(c) {
+      outside.add(c)
+      new = c :: new
+    }
+  }
+
+  range(minx, maxx+1).foreach(x => {
+    range(miny, maxy+1).foreach(y => {
+      range(minz, maxz+1).foreach(z => {
+        process(Coord(x, y, minz))
+        process(Coord(x, y, maxz))
+        process(Coord(x, miny, z))
+        process(Coord(x, maxy, z))
+        process(Coord(minx, y, z))
+        process(Coord(maxx, y, z))
+      })
+    })
+  })
+
+  for len(new) != 0 {
+    top = new[0]
+    new = new[1:]
+    top.neigh().foreach(process)
+  }
+
+  cubes.map(c => {
+    c.neigh().filter(c2 => !shape.contains(c2) && (is_outside_box(c2) || outside.contains(c2))).len()
+  }).sum()
+}
+
+cubes = readlines("inputs/day18_test.txt").map(parse)
+assert(solve1(cubes) == 64, "test1 error")
+assert(solve2(cubes) == 58, "test2 error")
+
+cubes = readlines("inputs/day18.txt").map(parse)
+res1 = solve1(cubes)
+println(res1)
+assert(res1 == 3526, "res 1 error")
+
+res2 = solve2(cubes)
+println(res2)
+assert(res2 == 2090, "res 2 error")
