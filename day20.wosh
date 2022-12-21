@@ -1,0 +1,89 @@
+#!import lib.wosh
+
+fn mix(numbers, key, rounds) {
+  length = len(numbers)
+  rotations = numbers.map(n => ((n % (length-1)) * (key % (length-1))) % (length - 1))
+
+  # id -> id
+  next = array(range(1, length + 1))
+  next[len(numbers)-1] = 0
+  prev = array(length-1 :: range(0, length-1))
+
+  r = 0
+  for r < rounds {
+    i = 0
+    for i < length {
+      x = rotations[i]
+      a = prev[i]
+      b = next[i]
+      if x > 0 {
+        next[a] = b
+        prev[b] = a
+
+        j = 1
+        for j < x {
+          b = next[b]
+          j = j+1
+        }
+        c = next[b]
+
+        next[b] = i
+        prev[c] = i
+
+        next[i] = c
+        prev[i] = b
+      } else if x < 0 {
+        next[a] = b
+        prev[b] = a
+        j = 1
+        for j < -x {
+          a = prev[a]
+          j = j+1
+        }
+        c = prev[a]
+        next[c] = i
+        prev[a] = i
+        next[i] = a
+        prev[i] = c
+      }
+      i = i + 1
+    }
+    r = r + 1
+  }
+
+  fn walk(idx0, n) {
+    i = 0
+    idx = idx0
+    for i < n {
+      idx = next[idx]
+      i = i + 1
+    }
+    idx
+  }
+
+  idx0 = numbers.search(0)
+  i1 = walk(idx0, 1000)
+  i2 = walk(i1, 1000)
+  i3 = walk(i2, 1000)
+  (numbers[i1] + numbers[i2] + numbers[i3]) * key
+}
+
+input = readlines("inputs/day20_test.txt").map(atoi)
+
+test1 = mix(input, 1, 1)
+println(test1)
+assert(test1 == 3, "test1")
+
+test2 = mix(input, 811589153, 10)
+println(test2)
+assert(test2 == 1623178306, "test2")
+
+input = readlines("inputs/day20.txt").map(atoi)
+
+res1 = mix(input, 1, 1)
+println(res1)
+assert(res1 == 7225, "res1")
+
+res2 = mix(input, 811589153, 10)
+println(res2)
+assert(res2 == 548634267428, "res2")

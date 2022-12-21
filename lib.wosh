@@ -71,6 +71,18 @@ fn (lst: List) get(idx) {
   lst[idx]
 }
 
+# Returns idx
+fn (lst: List) search(value) {
+  i = 0
+  for i < len(lst) {
+    if value == lst[i] {
+      return i
+    }
+    i = i + 1
+  }
+  return ()
+}
+
 fn (lst: List) reverse() {
   res = []
   i = 0
